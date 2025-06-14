@@ -139,14 +139,36 @@ create_project() {
     local skip_git="$5"
     local skip_start="$6"
     
-    # Determine project directory
+    # Determine project directory and extract actual project name
     if [[ "$project_name" == "." ]]; then
         PROJECT_DIR="$(pwd)"
         project_name=$(basename "$PROJECT_DIR")
         log_info "Initializing current directory as '$project_name'"
     else
-        PROJECT_DIR="$(pwd)/$project_name"
+        # Handle relative/absolute paths by extracting the final directory name
+        if [[ "$project_name" == */* ]]; then
+            PROJECT_DIR="$(cd "$(dirname "$project_name")" 2>/dev/null && pwd)/$(basename "$project_name")"
+            project_name=$(basename "$project_name")
+        else
+            PROJECT_DIR="$(pwd)/$project_name"
+        fi
         log_info "Creating project in '$PROJECT_DIR'"
+    fi
+    
+    # Prevent creating project inside generator directory
+    local abs_project_dir=$(cd "$(dirname "$PROJECT_DIR")" 2>/dev/null && pwd)/$(basename "$PROJECT_DIR")
+    local abs_script_dir=$(cd "$SCRIPT_DIR" 2>/dev/null && pwd)
+    
+    if [[ "$abs_project_dir" == "$abs_script_dir"* ]]; then
+        log_error "Cannot create project inside the generator directory"
+        log_error "Generator location: $abs_script_dir"
+        log_error "Attempted project location: $abs_project_dir"
+        echo ""
+        echo "Please use one of these patterns:"
+        echo "  • ../my-project-name (create in parent directory)"
+        echo "  • ~/projects/my-project-name (create in home projects folder)"
+        echo "  • /path/to/projects/my-project-name (create elsewhere)"
+        exit 1
     fi
     
     # Validate project name

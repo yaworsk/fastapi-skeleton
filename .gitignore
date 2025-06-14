@@ -1,0 +1,34 @@
+# Development files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment files (if any are added to generator itself)
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.temp
+
+# Testing artifacts (if we add tests to the generator)
+.coverage
+.pytest_cache/
+htmlcov/
